@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_class/home.dart';
 import 'package:flutter_class/todo.dart';
-import 'package:flutter_class/user/user.dart';
+import 'package:flutter_class/user/item.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -31,7 +31,7 @@ class FirstPage extends StatefulWidget {
 }
 
 class _FirstPageState extends State<FirstPage> {
-  List<User> users = [];
+  List<Item> items = [];
   TextEditingController controller = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -49,6 +49,14 @@ class _FirstPageState extends State<FirstPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
+                onChanged: (String val) async {
+                  // items = await getItems(searchText: val);
+                  items.clear();
+                  items.addAll(await getItems(searchText: val));
+                  setState(() {
+
+                  });
+                },
                 controller: controller,
                 validator: (value) {
                   if (value != null) {
@@ -69,14 +77,14 @@ class _FirstPageState extends State<FirstPage> {
                   return Column(
                     children: [
                       ListTile(
-                        title: Text(users[index].toString() ?? 'No Title'),
+                        title: Text(items[index].toString() ?? 'No Title'),
                         leading: const Icon(Icons.add),
                       ),
                       const Divider(),
                     ],
                   );
                 },
-                itemCount: users.length,
+                itemCount: items.length,
               ),
             ),
           ],
@@ -89,24 +97,12 @@ class _FirstPageState extends State<FirstPage> {
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton(
               onPressed: () async {
-                if (!_formKey.currentState!.validate()) {
-                  return;
+                try {
+                  items = await getItems();
+                  setState(() {});
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                 }
-
-                // if(controller.text.isEmpty){
-                //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter text to continue')));
-                //   return;
-                // }
-
-                Navigator.of(context).push(MaterialPageRoute(builder: (c) => const HomePage()));
-                // try {
-                //   List<User> data = await getUsers();
-                //   setState(() {
-                //     users = data;
-                //   });
-                // } catch (e) {
-                //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-                // }
               },
               child: const Icon(Icons.cloud),
             ),
@@ -145,20 +141,18 @@ class _FirstPageState extends State<FirstPage> {
     return response.statusCode == 201;
   }
 
-  Future<List<User>> getUsers() async {
-    String url = 'https://jsonplaceholder.typicode.com/users';
+  Future<List<Item>> getItems({String searchText = ''}) async {
+    String url =
+        'http://1.6.37.107/TNPC/apicontroller.php?action=getallitemsbasedsearch&search=$searchText';
     http.Response response = await http.get(Uri.parse(url));
-
     if (response.statusCode != 200) {
       throw Exception("Server Error");
     }
-    String responseBody = response.body;
-    log(responseBody);
-    List usersJson = jsonDecode(responseBody);
-    users = usersJson.map((e) {
-      return User.fromJson(e);
+    Map body = jsonDecode(response.body);
+    List items = body['data'];
+    return items.map((e) {
+      return Item.fromJson(e);
     }).toList();
-    return users;
   }
 
 // Future<List<Todo>> getTodos() async {
