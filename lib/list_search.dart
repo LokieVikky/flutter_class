@@ -32,6 +32,7 @@ class FirstPage extends StatefulWidget {
 
 class _FirstPageState extends State<FirstPage> {
   List<Item> items = [];
+  List<Item> filteredItems = [];
   TextEditingController controller = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -50,12 +51,20 @@ class _FirstPageState extends State<FirstPage> {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 onChanged: (String val) async {
-                  // items = await getItems(searchText: val);
-                  items.clear();
-                  items.addAll(await getItems(searchText: val));
-                  setState(() {
+                  if(val.isEmpty){
+                    filteredItems.clear();
+                    filteredItems.addAll(items);
+                    setState(() {
 
-                  });
+                    });
+                    return;
+                  }
+                  List<Item> temp = items.where((element) {
+                    return element.itemId.toString().toLowerCase().contains(val.toLowerCase());
+                  }).toList();
+                  filteredItems.clear();
+                  filteredItems.addAll(temp);
+                  setState(() {});
                 },
                 controller: controller,
                 validator: (value) {
@@ -77,14 +86,15 @@ class _FirstPageState extends State<FirstPage> {
                   return Column(
                     children: [
                       ListTile(
-                        title: Text(items[index].toString() ?? 'No Title'),
-                        leading: const Icon(Icons.add),
+                        title: Text(filteredItems[index].toString() ?? 'No Title'),
+                        leading: Image.network(filteredItems[index].url ??
+                            'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'),
                       ),
                       const Divider(),
                     ],
                   );
                 },
-                itemCount: items.length,
+                itemCount: filteredItems.length,
               ),
             ),
           ],
@@ -99,6 +109,8 @@ class _FirstPageState extends State<FirstPage> {
               onPressed: () async {
                 try {
                   items = await getItems();
+                  filteredItems.clear();
+                  filteredItems.addAll(items);
                   setState(() {});
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));

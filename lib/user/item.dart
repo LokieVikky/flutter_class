@@ -10,6 +10,7 @@ class Item{
   String? vendorname;
   String? vendorId;
   String? stock;
+  String? url;
 
   Item.fromJson(dynamic json){
     itemId = json['Itemid'];
@@ -20,6 +21,7 @@ class Item{
     vendorname = json['VendorName'];
     vendorId = json['vendorid'];
     stock = json['stock'];
+    url = 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg';
   }
 
 
