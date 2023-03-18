@@ -1,10 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_class/home.dart';
-import 'package:flutter_class/todo.dart';
 import 'package:flutter_class/user/item.dart';
 import 'package:http/http.dart' as http;
 
@@ -53,9 +49,7 @@ class _FirstPageState extends State<FirstPage> {
                   // items = await getItems(searchText: val);
                   items.clear();
                   items.addAll(await getItems(searchText: val));
-                  setState(() {
-
-                  });
+                  setState(() {});
                 },
                 controller: controller,
                 validator: (value) {
@@ -78,7 +72,8 @@ class _FirstPageState extends State<FirstPage> {
                     children: [
                       ListTile(
                         title: Text(items[index].toString() ?? 'No Title'),
-                        leading: Image.network(items[index].url??'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'),
+                        leading: Image.network(items[index].url ??
+                            'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'),
                       ),
                       const Divider(),
                     ],
